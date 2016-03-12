@@ -4,5 +4,6 @@ Transpiles Turing machines to Javascript. Works with the syntax specified [here]
 ## Usage
 
 ````bash
-node --harmony-destructuring --harmony_default_parameters turing.js your_turing_machine.ts
+node --harmony-destructuring --harmony_default_parameters turing.js jsturing/machines/primetest.txt > compiled.js
+node -e "console.log(require('./compiled.js')('110', true)[1])"
 ````
