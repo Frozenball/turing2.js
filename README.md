@@ -1,5 +1,5 @@
 # Turing2.js
-Transpiles Turing machines to Javascript. Works with the syntax specified [here](http://morphett.info/turing/turing.html). Contains some bugs at the moment but the prime checker should work.
+Transpiles Turing machines to Javascript. Works with the syntax specified [here](http://morphett.info/turing/turing.html). This has some bugs at the moment but the prime checker should work.
 
 ## Usage
 
