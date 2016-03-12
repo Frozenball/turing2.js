@@ -1,0 +1,15 @@
+{
+  "name": "turing-to-js",
+  "version": "0.0.1",
+  "description": "Transpiles turing machines to Javascript code",
+  "main": "turing.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Teemu <teemu.on.ihminen@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "indent-string": "^2.1.0",
+    "minimist": "^1.2.0"
+  }
+}
