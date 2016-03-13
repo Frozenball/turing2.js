@@ -42,8 +42,9 @@ function transpile(syntax) {
   let source = '';
   source += "var DEBUG = false;\n";
   source += "var input = input.split('');\n"// + JSON.stringify('110'.split('')) + ";\n";
-  source += "var state = " + JSON.stringify(syntax.startState) + ";\n";
   source += "var tapePosition = " + JSON.stringify(0) + ";\n";
+  source += "function statehalt() { }\n";
+  source += "function statehaltAccept() { }\n";
   source += `function goLeft() {
   if (DEBUG) console.log('Go left');
   tapePosition--;
@@ -66,6 +67,16 @@ function transpile(syntax) {
 }
 `;
   source += `function replace(replace) {
+  if (DEBUG) console.log('Replacing with ', replace);
+  if (tapePosition >= 0 && tapePosition < input.length) {
+    input[tapePosition] = replace;
+  } else if (tapePosition === input.length) {
+    input.push(replace);
+  } else {
+    throw "Invalid tape position when replacing";
+  }
+}
+`;  source += `function state(replace) {
   if (DEBUG) console.log('Replacing with ', replace);
   if (tapePosition >= 0 && tapePosition < input.length) {
     input[tapePosition] = replace;
@@ -102,7 +113,7 @@ function transpile(syntax) {
       } else if (move.move == 'r') {
         source += indent("goRight();\n", 2);
       }
-      source += indent("state = " + JSON.stringify(move.nextState) + ";\n", 2);
+      source += indent("state = state" + move.nextState + ";\n", 2);
       source += indent("return;\n", 2);
 
       source += indent("}\n");
@@ -116,38 +127,30 @@ function transpile(syntax) {
 
   source += `
 var i = 0;
+var state = state${syntax.startState};
 while (true) {
   i++;
   if (DEBUG && i == 30) break;
   if (DEBUG) console.log('State is', state, 'Tape', input);
+  if (state === statehalt) {
+    if (includeTape) {
+      return [false, input.join('').trim()];
+    } else {
+      return false;
+    }
+  }
+  else if (state === statehaltAccept) {
+    if (includeTape) {
+      return [true, input.join('').trim()];
+    } else {
+      return true;
+    }
+  } else if (state) {
+    state();
+  }
+}
 `;
 
-  var firstLine = true;
-  for (let state of Object.keys(syntax.states)) {
-    source += indent((firstLine === true ? '' : 'else ') + "if (state === "+JSON.stringify(state)+") state" + state + "();\n");
-    firstLine = false;
-  }
-  source += indent(`else if (state === 'halt') {
-  if (includeTape) {
-    return [false, input.join('').trim()];
-  } else {
-    return false;
-  }
-}
-`);
-source += indent(`else if (state === 'halt-accept') {
-if (includeTape) {
-  return [true, input.join('').trim()];
-} else {
-  return true;
-}
-}
-`);
-  source += indent("else { throw 'Should not happen'; }\n");
-
-  source += `
-}
-`;
   return `(function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -169,7 +172,6 @@ ${indent(source, 2)}
 }
 
 if (argv._[0]) {
-  console.log(argv);
   fs.readFile(argv._[0], 'utf8', function (err, data) {
     if (err) {
       return console.error(err);
