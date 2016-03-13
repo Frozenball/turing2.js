@@ -1,3 +1,3 @@
 [submodule "jsturing"]
 	path = jsturing
-	url = git@github.com:awmorp/jsturing.git
+	url = https://github.com/awmorp/jsturing.git
