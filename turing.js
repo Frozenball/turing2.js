@@ -180,6 +180,7 @@ if (argv._[0]) {
     ast.startState = '0';
 
     let source = transpile(ast);
+    source = source.split("\n").filter(x => !x.includes('DEBUG')).join("\n");
     console.log(source);
   });
 } else {
