@@ -38,7 +38,7 @@ function parseTuringSyntax(source) {
   }
 }
 
-function transpile(syntax) {
+function transpile(syntax, options) {
   let source = '';
   source += "var DEBUG = false;\n";
   source += "var input = input.split('');\n"// + JSON.stringify('110'.split('')) + ";\n";
@@ -145,7 +145,8 @@ while (true) {
 }
 `;
 
-  return `(function (root, factory) {
+  if (options.moduleLoader) {
+    return `(function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
         define([], factory);
@@ -163,6 +164,11 @@ while (true) {
 ${indent(source, 2)}
   };
 }));`;
+  } else {
+    return `(function(input, includeTape) {
+  ${indent(source, 2)}
+})`;
+  }
 }
 
 if (argv._[0]) {
@@ -173,9 +179,15 @@ if (argv._[0]) {
     let ast = parseTuringSyntax(data);
     ast.startState = '0';
 
-    let source = transpile(ast);
-    source = source.split("\n").filter(x => !x.includes('DEBUG')).join("\n");
-    console.log(source);
+    if (argv.compile) {
+      let source = transpile(ast, {moduleLoader: true});
+      source = source.split("\n").filter(x => !x.includes('DEBUG')).join("\n");
+      console.log(source);
+    } else {
+      let source = transpile(ast, {moduleLoader: false});
+      source = source.split("\n").filter(x => !x.includes('DEBUG')).join("\n");
+      eval(`console.log(${source}(${JSON.stringify('' + argv._[1])}, true));`);
+    }
   });
 } else {
   console.error('No file specified.');
