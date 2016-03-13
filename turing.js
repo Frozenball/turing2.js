@@ -68,13 +68,7 @@ function transpile(syntax) {
 `;
   source += `function replace(replace) {
   if (DEBUG) console.log('Replacing with ', replace);
-  if (tapePosition >= 0 && tapePosition < input.length) {
-    input[tapePosition] = replace;
-  } else if (tapePosition === input.length) {
-    input.push(replace);
-  } else {
-    throw "Invalid tape position when replacing";
-  }
+  input[tapePosition] = replace;
 }
 `;  source += `function state(replace) {
   if (DEBUG) console.log('Replacing with ', replace);
